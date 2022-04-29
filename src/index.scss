@@ -45,6 +45,14 @@ p {
     font-weight: bold;
 }
 
+.text--link {
+    color: colors.$accent-base;
+
+    &:hover {
+        color: colors.$accent-dark;
+    }
+}
+
 button {
     padding: 12px 32px;
     border-radius: border-sizes.$rounded;
@@ -56,4 +64,59 @@ button {
     &:hover {
         background: colors.$accent-shadow;
     }
+}
+
+input {
+    border-radius: border-sizes.$rounded;
+    border: none;
+    display: block;
+    padding: 12px 20px;
+    width: 100%;
+    outline: none;
+    background: colors.$primary-base;
+    font-size: text-sizes.$p;
+    box-sizing: border-box;
+}
+
+.button--group {
+    & :not(:last-child) {
+        margin-right: 12px;
+    }
+}
+
+.mb--4 {
+    margin-bottom: 4px;
+}
+.mb--8 {
+    margin-bottom: 8px;
+}
+.mb--12 {
+    margin-bottom: 12px;
+}
+.mb--16 {
+    margin-bottom: 16px;
+}
+.mb--20 {
+    margin-bottom: 20px;
+}
+.mb--24 {
+    margin-bottom: 24px;
+}
+.mb--28 {
+    margin-bottom: 28px;
+}
+.mb--32 {
+    margin-bottom: 32px;
+}
+.mb--36 {
+    margin-bottom: 36px;
+}
+.mb--40 {
+    margin-bottom: 40px;
+}
+
+.flex--between--center {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 }

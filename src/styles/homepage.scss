@@ -9,7 +9,22 @@
     padding: 40px 80px;
 }
 
-.homepage__modal {
+.homepage__title-box {
+    @extend .text--bold;
+    margin-bottom: 24px;
+
+}
+
+.homepage__modal__title {
+    @extend .text--bold;
+    margin-bottom: 24px;
+}
+
+.homepage__modal__content {
+    box-sizing: border-box;
+    & :not(:last-child) {
+        margin-bottom: 12px;
+    }
 }
 
 @mixin project($bg-color) {
@@ -29,16 +44,16 @@
     }
 }
 
-.workspace__header {
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 8px;
-    width: 100%;
-}
+// .workspace__header {
+//     display: flex;
+//     flex-direction: row;
+//     justify-content: space-between;
+//     align-items: center;
+//     margin-bottom: 8px;
+//     width: 100%;
+// }
 
-.workspace__content {
+.projects-grid {
     display: grid;
     grid-template-columns: 1fr 1fr 1fr 1fr;
     gap: 12px;
@@ -47,26 +62,26 @@
     width: 100%;
 }
 
-.projects__project--blue {
+.project--blue {
     @include project(colors.$backgrounds-blue);
 }
 
-.projects__project--brown {
+.project--brown {
     @include project(colors.$backgrounds-brown);
 }
 
-.projects__project--green {
+.project--green {
     @include project(colors.$backgrounds-green);
 }
 
-.projects__project--purple {
+.project--purple {
     @include project(colors.$backgrounds-purple);
 }
 
-.projects__project--red {
+.project--red {
     @include project(colors.$backgrounds-red);
 }
 
-.projects__project--yellow {
+.project--yellow {
     @include project(colors.$backgrounds-yellow);
 }
