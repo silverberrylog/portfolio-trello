@@ -1,0 +1,72 @@
+@use './colors';
+@use './border-sizes';
+@use '../index.scss';
+
+.homepage {
+    height: 100%;
+    width: 100%;
+    box-sizing: border-box;
+    padding: 40px 80px;
+}
+
+.homepage__modal {
+}
+
+@mixin project($bg-color) {
+    box-sizing: border-box;
+    height: 150px;
+    padding: 16px;
+    background: $bg-color;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    width: 100%;
+    cursor: pointer;
+    border-radius: border-sizes.$rounded;
+
+    &:hover {
+        filter: brightness(95%);
+    }
+}
+
+.workspace__header {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+    width: 100%;
+}
+
+.workspace__content {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 32px;
+    box-sizing: border-box;
+    width: 100%;
+}
+
+.projects__project--blue {
+    @include project(colors.$backgrounds-blue);
+}
+
+.projects__project--brown {
+    @include project(colors.$backgrounds-brown);
+}
+
+.projects__project--green {
+    @include project(colors.$backgrounds-green);
+}
+
+.projects__project--purple {
+    @include project(colors.$backgrounds-purple);
+}
+
+.projects__project--red {
+    @include project(colors.$backgrounds-red);
+}
+
+.projects__project--yellow {
+    @include project(colors.$backgrounds-yellow);
+}

@@ -1,0 +1,59 @@
+@use 'styles/text-sizes';
+@use 'styles/border-sizes';
+@use 'styles/colors';
+
+html,
+body,
+#root {
+    height: 100%;
+    width: 100%;
+}
+
+html {
+    background: colors.$primary-background;
+    // padding: 40px 80px;
+    box-sizing: border-box;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+p,
+span {
+    color: colors.$primary-text;
+}
+
+h1 {
+    font-size: text-sizes.$h-1;
+}
+
+h2 {
+    font-size: text-sizes.$h-2;
+}
+
+h3 {
+    font-size: text-sizes.$h-3;
+}
+
+p {
+    font-size: text-sizes.$p;
+}
+
+.text--bold {
+    font-weight: bold;
+}
+
+button {
+    padding: 12px 32px;
+    border-radius: border-sizes.$rounded;
+    border: none;
+    cursor: pointer;
+    background: colors.$accent-dark;
+    font-size: text-sizes.$p;
+
+    &:hover {
+        background: colors.$accent-shadow;
+    }
+}

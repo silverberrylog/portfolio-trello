@@ -1,0 +1,26 @@
+@use './colors';
+@use './border-sizes';
+
+.modal {
+    position: fixed;
+    top: 0px;
+    left: 0px;
+    right: 0px;
+    bottom: 0px;
+    background: colors.$primary-shadow;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.modal--hidden {
+    visibility: hidden;
+}
+
+.modal__content {
+    background: colors.$primary-background;
+    border: none;
+    border-radius: border-sizes.$rounded;
+    padding: 16px;
+    width: 33.33%;
+}
