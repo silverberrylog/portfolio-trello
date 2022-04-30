@@ -101,7 +101,6 @@ export default function Homepage() {
                 })
             })
 
-            console.log(projectsByWorkspaceId)
             setProjects(projectsByWorkspaceId)
         }
         getInitialData()

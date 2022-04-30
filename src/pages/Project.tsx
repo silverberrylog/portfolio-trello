@@ -139,12 +139,14 @@ export default function ProjectPage() {
 
     const DisplayProject = () => {
         return (
-            <div className="w-1-1 h-1-1 flex flex-column justify-between h-1-1 w-1-1 gap-32 border-box">
+            <div className="w-1-1 h-1-1 flex flex-column justify-between gap-32 border-box">
                 <div className="relative">
                     <div className="flex justify-between items-center">
                         <div>
                             <h1 className="title-1">{project.name}</h1>
-                            <Link to="/" className="link">Back to projects</Link>
+                            <Link to="/" className="link">
+                                Back to projects
+                            </Link>
                         </div>
                         <div className="flex gap-12">
                             <button className="button-primary">
@@ -175,7 +177,7 @@ export default function ProjectPage() {
                 </div>
 
                 <div className="h-1-1 w-1-1 border-box overflow-x">
-                    <div className="flex h-1-1 gap-12 w-fit">
+                    <div className="flex h-fit gap-12 w-fit pb-16 pr-16">
                         {lists.map((list, index) => (
                             <div
                                 className="w-300 h-fit border-box bg-primary-highlight border-none rounded"

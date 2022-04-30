@@ -2,7 +2,7 @@ import { Suspense } from 'react'
 import RouterConfig from './components/RouterConfig'
 import Loading from './components/Loading'
 import './styles/reset.css'
-import './index.scss'
+import './styles/index.scss'
 
 export default function App() {
     return (
