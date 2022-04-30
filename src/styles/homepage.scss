@@ -1,87 +1,15 @@
-@use './colors';
-@use './border-sizes';
-@use '../index.scss';
+@use '../newStyles' as *;
 
-// .homepage {
-//     height: 100%;
-//     width: 100%;
-//     box-sizing: border-box;
-//     padding: 40px 80px;
-// }
-
-// .homepage__title-box {
-//     @extend .text--bold;
-//     margin-bottom: 24px;
-// }
-
-// .homepage__modal__title {
-//     @extend .text--bold;
-//     margin-bottom: 24px;
-// }
-
-@mixin projectBase($bg-color) {
-    box-sizing: border-box;
-    height: 150px;
-    width: 100%;
-    padding: 16px;
-    background: $bg-color;
-    cursor: pointer;
-    border-radius: border-sizes.$rounded;
+.project-card {
+    @extend .border-box,
+        .h-150,
+        .w-1-1,
+        .p-16,
+        .cursor-pointer,
+        .border-none,
+        .rounded;
 
     &:hover {
         filter: brightness(95%);
     }
-}
-
-@mixin project($bg-color) {
-    @include projectBase($bg-color);
-    flex-direction: column;
-    display: flex;
-    justify-content: space-between;
-}
-
-// .workspace__header {
-//     display: flex;
-//     flex-direction: row;
-//     justify-content: space-between;
-//     align-items: center;
-//     margin-bottom: 8px;
-//     width: 100%;
-// }
-
-.projects-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr 1fr;
-    gap: 12px;
-    margin-bottom: 32px;
-    box-sizing: border-box;
-    width: 100%;
-}
-
-.project {
-    @include projectBase(colors.$backgrounds-blue);
-}
-
-.project--blue {
-    @include project(colors.$backgrounds-blue);
-}
-
-.project--brown {
-    @include project(colors.$backgrounds-brown);
-}
-
-.project--green {
-    @include project(colors.$backgrounds-green);
-}
-
-.project--purple {
-    @include project(colors.$backgrounds-purple);
-}
-
-.project--red {
-    @include project(colors.$backgrounds-red);
-}
-
-.project--yellow {
-    @include project(colors.$backgrounds-yellow);
 }

@@ -29,17 +29,22 @@ interface HomepageModalProps {
 const HomepageModal = (props: HomepageModalProps) => {
     return (
         <Modal isHidden={!props.show}>
-            <h1 className="text--bold mb--16">Create a workspace</h1>
-            <form className="mb--12--children" onSubmit={preventDefault}>
+            <h1 className="title-1 mb-16">Create a workspace</h1>
+            <form className="mbc-12" onSubmit={preventDefault}>
                 <input
+                    className="input"
                     value={props.nameValue}
                     onChange={event => props.onNameUpdate(event.target.value)}
                     type="text"
                     placeholder="Workspace name"
                 />
-                <div className="button--group">
-                    <button onClick={props.onSubmit}>Create</button>
-                    <button onClick={props.onClose}>Cancel</button>
+                <div className="flex gap-12">
+                    <button className="button-primary" onClick={props.onSubmit}>
+                        Create
+                    </button>
+                    <button className="button-primary" onClick={props.onClose}>
+                        Cancel
+                    </button>
                 </div>
             </form>
         </Modal>
@@ -186,18 +191,21 @@ export default function Homepage() {
                 onClose={() => setShowProjectModal(false)}
                 onSubmit={createProject}
             />
-            <div className="flex--between--center mb--16">
-                <h1 className="text--bold">Homepage</h1>
-                <button onClick={() => setShowCrateModal(true)}>
+            <div className="flex justify-between items-center mb-16">
+                <h1 className="title-1">Homepage</h1>
+                <button
+                    className="button-primary"
+                    onClick={() => setShowCrateModal(true)}>
                     Create workspace
                 </button>
             </div>
             {workspaces.map(workspace => (
                 <div key={workspace.id}>
-                    <div className="flex--between--center mb--16">
-                        <h2 className="text--bold">{workspace.name}</h2>
-                        <div className="button--group">
+                    <div className="flex justify-between items-center mb-16">
+                        <h2 className="title-2">{workspace.name}</h2>
+                        <div className="flex gap-12">
                             <button
+                                className="button-primary"
                                 onClick={() => {
                                     setWorkspaceName(workspace.name)
                                     setWorkspaceId(workspace.id)
@@ -211,14 +219,16 @@ export default function Homepage() {
                             </ConfirmButton>
                         </div>
                     </div>
-                    <div className="projects-grid">
+                    <div className="grid cols-4 gap-12 mb-32 border-box w-1-1">
                         {(projects[workspace.id] || []).map(project => (
                             <div
-                                onClick={() => navigate(`/project/${project.id}`)}
+                                onClick={() =>
+                                    navigate(`/project/${project.id}`)
+                                }
                                 key={project.id}
-                                className={`project--${project.color}`}>
-                                <p>{project.name}</p>
-                                {/* <p >Delete project</p> */}
+                                className={`project-card flex justify-between flex-column bg-custom-${project.color}`}>
+                                <p className="paragraph">{project.name}</p>
+                                {/* <p>Delete project</p> */}
                             </div>
                         ))}
                         <div
@@ -226,8 +236,8 @@ export default function Homepage() {
                                 setCurrentWorkspaceId(workspace.id)
                                 setShowProjectModal(true)
                             }}
-                            className="project flex--center--center">
-                            <p>Create project</p>
+                            className="project-card flex justify-center items-center bg-custom-blue">
+                            <p className="paragraph">Create project</p>
                         </div>
                     </div>
                 </div>

@@ -19,7 +19,7 @@ export default function ConfirmButton(
     }
 
     return (
-        <button onClick={handleClick}>
+        <button onClick={handleClick} className="button-primary">
             {showConfirmation ? 'Are you sure?' : props.children}
         </button>
     )

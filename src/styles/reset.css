@@ -127,3 +127,11 @@ table {
     border-collapse: collapse;
     border-spacing: 0;
 }
+
+/* Disable link color */
+a,
+a:visited,
+a:hover,
+a:active {
+    color: inherit;
+}
