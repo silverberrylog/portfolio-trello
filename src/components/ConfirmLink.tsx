@@ -1,11 +1,11 @@
 import { PropsWithChildren, useState } from 'react'
 
-interface ConfirmButtonProps {
+interface ConfirmLinkProps {
     onClick: () => void
 }
 
-export default function ConfirmButton(
-    props: PropsWithChildren<ConfirmButtonProps>
+export default function ConfirmLink(
+    props: PropsWithChildren<ConfirmLinkProps>
 ) {
     const [showConfirmation, setShowConfirmation] = useState(false)
     const [timer, setTimer] = useState<NodeJS.Timeout | null>(null)
@@ -21,8 +21,8 @@ export default function ConfirmButton(
     }
 
     return (
-        <button onClick={handleClick} className="button-primary">
+        <a onClick={handleClick} className="link">
             {showConfirmation ? 'Are you sure?' : props.children}
-        </button>
+        </a>
     )
 }

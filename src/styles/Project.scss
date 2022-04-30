@@ -1,12 +1,25 @@
 @use './vars';
 @use './index';
 
-.task {
-    @extend .p-20, .bg-primary-background, .border-none, .rounded, .cursor-grab;
+.list {
+    @extend .w-300,
+        .h-fit,
+        .border-box,
+        .bg-primary-highlight,
+        .border-none,
+        .rounded;
+}
+
+.task-base {
+    @extend .p-20, .bg-primary-background, .border-none, .rounded;
 
     &:hover {
         @extend .bg-primary-base;
     }
+}
+
+.task {
+    @extend .task-base, .cursor-grab;
 }
 
 .shadow-menu {

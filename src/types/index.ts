@@ -21,3 +21,11 @@ export interface WorkspaceData {
 }
 
 export interface Workspace extends WorkspaceData, HasId {}
+
+export interface ListData {
+    project: string
+    name: string
+    createdAt: Date
+}
+
+export interface List extends ListData, HasId {}

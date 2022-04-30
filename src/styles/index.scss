@@ -386,6 +386,10 @@
     top: 64;
 }
 
+.top-268 {
+    top: 268;
+}
+
 .right-0 {
     right: 0;
 }
@@ -396,6 +400,10 @@
 
 .left-0 {
     left: 0;
+}
+
+.left-16 {
+    left: 16;
 }
 
 // Borders
@@ -522,6 +530,10 @@
     font-size: vars.$p;
 }
 
+.text-right {
+    text-align: right;
+}
+
 // Misc
 .border-box {
     box-sizing: border-box;
@@ -633,7 +645,7 @@
     @extend .cursor-pointer;
     font-style: italic;
     text-decoration: none;
-    
+
     &:hover {
         text-decoration: underline;
     }

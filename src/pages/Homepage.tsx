@@ -12,44 +12,10 @@ import {
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import ConfirmButton from '../components/ConfirmButton'
-import Modal from '../components/Modal'
+import SingleInputModal from '../components/SingleInputModal'
 import '../styles/Homepage.scss'
 import { ProjectData, Projects, Workspace } from '../types'
 import { db } from '../utils/firebase'
-import { preventDefault } from '../utils/misc'
-
-interface HomepageModalProps {
-    show: boolean
-    onClose: () => void
-    onSubmit: () => void
-    nameValue: string
-    onNameUpdate: (newValue: string) => void
-}
-
-const HomepageModal = (props: HomepageModalProps) => {
-    return (
-        <Modal isHidden={!props.show}>
-            <h1 className="title-1 mb-16">Create a workspace</h1>
-            <form className="mbc-12" onSubmit={preventDefault}>
-                <input
-                    className="input"
-                    value={props.nameValue}
-                    onChange={event => props.onNameUpdate(event.target.value)}
-                    type="text"
-                    placeholder="Workspace name"
-                />
-                <div className="flex gap-12">
-                    <button className="button-primary" onClick={props.onSubmit}>
-                        Create
-                    </button>
-                    <button className="button-primary" onClick={props.onClose}>
-                        Cancel
-                    </button>
-                </div>
-            </form>
-        </Modal>
-    )
-}
 
 export default function Homepage() {
     const [workspaces, setWorkspaces] = useState<Workspace[]>([])
@@ -116,7 +82,6 @@ export default function Homepage() {
             { id: workspaceRef.id, name: workspaceName },
         ])
 
-        setShowCrateModal(false)
         setWorkspaceName('')
     }
 
@@ -132,7 +97,6 @@ export default function Homepage() {
             )
         })
 
-        setShowUpdateModal(false)
         setWorkspaceId('')
     }
 
@@ -169,21 +133,30 @@ export default function Homepage() {
 
     return (
         <>
-            <HomepageModal
+            <SingleInputModal
+                title="Create a workspace"
+                inputPlaceholder="Workspace name"
+                submitButtonText="Create"
                 show={showCrateModal}
                 nameValue={workspaceName}
                 onNameUpdate={setWorkspaceName}
                 onClose={() => setShowCrateModal(false)}
                 onSubmit={createWorkspace}
             />
-            <HomepageModal
+            <SingleInputModal
+                title="Update workspace"
+                inputPlaceholder="Workspace name"
+                submitButtonText="Update"
                 show={showUpdateModal}
                 nameValue={workspaceName}
                 onNameUpdate={setWorkspaceName}
                 onClose={() => setShowUpdateModal(false)}
                 onSubmit={updateWorkspace}
             />
-            <HomepageModal
+            <SingleInputModal
+                title="Create a project"
+                inputPlaceholder="Project name"
+                submitButtonText="Create"
                 show={showProjectModal}
                 nameValue={projectName}
                 onNameUpdate={setProjectName}
