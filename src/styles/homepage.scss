@@ -2,46 +2,42 @@
 @use './border-sizes';
 @use '../index.scss';
 
-.homepage {
-    height: 100%;
-    width: 100%;
-    box-sizing: border-box;
-    padding: 40px 80px;
-}
+// .homepage {
+//     height: 100%;
+//     width: 100%;
+//     box-sizing: border-box;
+//     padding: 40px 80px;
+// }
 
-.homepage__title-box {
-    @extend .text--bold;
-    margin-bottom: 24px;
+// .homepage__title-box {
+//     @extend .text--bold;
+//     margin-bottom: 24px;
+// }
 
-}
+// .homepage__modal__title {
+//     @extend .text--bold;
+//     margin-bottom: 24px;
+// }
 
-.homepage__modal__title {
-    @extend .text--bold;
-    margin-bottom: 24px;
-}
-
-.homepage__modal__content {
-    box-sizing: border-box;
-    & :not(:last-child) {
-        margin-bottom: 12px;
-    }
-}
-
-@mixin project($bg-color) {
+@mixin projectBase($bg-color) {
     box-sizing: border-box;
     height: 150px;
+    width: 100%;
     padding: 16px;
     background: $bg-color;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    width: 100%;
     cursor: pointer;
     border-radius: border-sizes.$rounded;
 
     &:hover {
         filter: brightness(95%);
     }
+}
+
+@mixin project($bg-color) {
+    @include projectBase($bg-color);
+    flex-direction: column;
+    display: flex;
+    justify-content: space-between;
 }
 
 // .workspace__header {
@@ -60,6 +56,10 @@
     margin-bottom: 32px;
     box-sizing: border-box;
     width: 100%;
+}
+
+.project {
+    @include projectBase(colors.$backgrounds-blue);
 }
 
 .project--blue {

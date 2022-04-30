@@ -5,26 +5,18 @@ import {
     doc,
     setDoc,
     deleteDoc,
+    query,
+    where,
+    writeBatch,
 } from 'firebase/firestore'
 import { useEffect, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import ConfirmButton from '../components/ConfirmButton'
 import Modal from '../components/Modal'
-import '../styles/homepage.scss'
+import '../styles/Homepage.scss'
+import { ProjectData, Projects, Workspace } from '../types'
 import { db } from '../utils/firebase'
 import { preventDefault } from '../utils/misc'
-
-type Color = 'blue' | 'brown' | 'green' | 'purple' | 'red' | 'yellow'
-
-interface Project {
-    id: string
-    name: string
-    color: Color
-}
-
-interface Workspace {
-    id: string
-    name: string
-}
 
 interface HomepageModalProps {
     show: boolean
@@ -37,41 +29,40 @@ interface HomepageModalProps {
 const HomepageModal = (props: HomepageModalProps) => {
     return (
         <Modal isHidden={!props.show}>
-            <div className="homepage__modal">
-                <h1 className="homepage__modal__title">Create a workspace</h1>
-                <form
-                    className="homepage__modal__content"
-                    onSubmit={preventDefault}>
-                    <input
-                        value={props.nameValue}
-                        onChange={event =>
-                            props.onNameUpdate(event.target.value)
-                        }
-                        type="text"
-                        placeholder="Workspace name"
-                    />
-                    <div className="button--group">
-                        <button onClick={props.onSubmit}>Create</button>
-                        <button onClick={props.onClose}>Cancel</button>
-                    </div>
-                </form>
-            </div>
+            <h1 className="text--bold mb--16">Create a workspace</h1>
+            <form className="mb--12--children" onSubmit={preventDefault}>
+                <input
+                    value={props.nameValue}
+                    onChange={event => props.onNameUpdate(event.target.value)}
+                    type="text"
+                    placeholder="Workspace name"
+                />
+                <div className="button--group">
+                    <button onClick={props.onSubmit}>Create</button>
+                    <button onClick={props.onClose}>Cancel</button>
+                </div>
+            </form>
         </Modal>
     )
 }
 
 export default function Homepage() {
     const [workspaces, setWorkspaces] = useState<Workspace[]>([])
-    // const [projects, setProjects] = useState<Project[]>([])
+    const [projects, setProjects] = useState<Projects>({})
 
     const [showUpdateModal, setShowUpdateModal] = useState(false)
     const [showCrateModal, setShowCrateModal] = useState(false)
+    const [showProjectModal, setShowProjectModal] = useState(false)
 
     const [workspaceName, setWorkspaceName] = useState('')
     const [workspaceId, setWorkspaceId] = useState('')
+    const [projectName, setProjectName] = useState('')
+    const [currentWorkspaceId, setCurrentWorkspaceId] = useState('')
+
+    const navigate = useNavigate()
 
     useEffect(() => {
-        const getWorkspaces = async () => {
+        const getInitialData = async () => {
             const workspacesSnapshot = await getDocs(
                 collection(db, 'workspaces')
             )
@@ -83,11 +74,32 @@ export default function Homepage() {
                     name: workspace.data().name,
                 })
             })
-            console.log(workspaces)
 
             setWorkspaces(workspaces)
+
+            const projectsSnapshot = await getDocs(collection(db, 'projects'))
+
+            let projectsByWorkspaceId: Projects = {}
+            projectsSnapshot.forEach(project => {
+                const projectData = project.data()
+
+                if (!projectsByWorkspaceId[projectData.workspace]) {
+                    projectsByWorkspaceId[projectData.workspace] = []
+                }
+
+                projectsByWorkspaceId[projectData.workspace].push({
+                    id: project.id,
+                    // ...projectData,
+                    workspace: projectData.workspace,
+                    name: projectData.name,
+                    color: projectData.color,
+                })
+            })
+
+            console.log(projectsByWorkspaceId)
+            setProjects(projectsByWorkspaceId)
         }
-        getWorkspaces()
+        getInitialData()
     }, [])
 
     const createWorkspace = async () => {
@@ -121,6 +133,17 @@ export default function Homepage() {
     }
 
     const deleteWorkspace = async (workspaceId: string) => {
+        const projects = await getDocs(
+            query(
+                collection(db, 'projects'),
+                where('workspace', '==', workspaceId)
+            )
+        )
+
+        const batch = writeBatch(db)
+        projects.forEach(project => batch.delete(project.ref))
+        await batch.commit()
+
         await deleteDoc(doc(db, 'workspaces', workspaceId))
 
         setWorkspaces(workspaces =>
@@ -128,8 +151,20 @@ export default function Homepage() {
         )
     }
 
+    const createProject = async () => {
+        const projectData: ProjectData = {
+            workspace: currentWorkspaceId,
+            name: projectName,
+            color: 'blue',
+        }
+
+        const projectRef = await addDoc(collection(db, 'projects'), projectData)
+
+        navigate(`/project/${projectRef.id}`)
+    }
+
     return (
-        <div className="homepage">
+        <>
             <HomepageModal
                 show={showCrateModal}
                 nameValue={workspaceName}
@@ -143,6 +178,13 @@ export default function Homepage() {
                 onNameUpdate={setWorkspaceName}
                 onClose={() => setShowUpdateModal(false)}
                 onSubmit={updateWorkspace}
+            />
+            <HomepageModal
+                show={showProjectModal}
+                nameValue={projectName}
+                onNameUpdate={setProjectName}
+                onClose={() => setShowProjectModal(false)}
+                onSubmit={createProject}
             />
             <div className="flex--between--center mb--16">
                 <h1 className="text--bold">Homepage</h1>
@@ -169,25 +211,27 @@ export default function Homepage() {
                             </ConfirmButton>
                         </div>
                     </div>
-
                     <div className="projects-grid">
-                        <div className="project--blue">Project lorem ipsum</div>
-                        <div className="project--blue">Project lorem ipsum</div>
-                        <div className="project--blue">Project lorem ipsum</div>
-                        <div className="project--blue">Project lorem ipsum</div>
-                        <div className="project--blue">Project lorem ipsum</div>
-                        <div className="project--blue">Project lorem ipsum</div>
-                        {/* {projects.map((project, index) => (
+                        {(projects[workspace.id] || []).map(project => (
                             <div
-                                key={index}
-                                className="project--blue">
+                                onClick={() => navigate(`/project/${project.id}`)}
+                                key={project.id}
+                                className={`project--${project.color}`}>
                                 <p>{project.name}</p>
-                                <p>Delete project</p>
+                                {/* <p >Delete project</p> */}
                             </div>
-                        ))} */}
+                        ))}
+                        <div
+                            onClick={() => {
+                                setCurrentWorkspaceId(workspace.id)
+                                setShowProjectModal(true)
+                            }}
+                            className="project flex--center--center">
+                            <p>Create project</p>
+                        </div>
                     </div>
                 </div>
             ))}
-        </div>
+        </>
     )
 }
