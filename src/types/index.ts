@@ -29,3 +29,16 @@ export interface ListData {
 }
 
 export interface List extends ListData, HasId {}
+
+export interface TaskData {
+    project: string
+    list: string
+    name: string
+    createdAt: Date
+}
+
+export interface Task extends TaskData, HasId {}
+
+export interface Tasks {
+    [listId: string]: Task[]
+}

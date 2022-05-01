@@ -11,7 +11,7 @@
 }
 
 .task-base {
-    @extend .p-20, .bg-primary-background, .border-none, .rounded;
+    @extend .bg-primary-background, .border-none, .rounded;
 
     &:hover {
         @extend .bg-primary-base;
@@ -37,6 +37,11 @@
 .ghost-input {
     @extend .input-base, .bg-transparent;
     &:focus {
-        @extend .input, .bg-primary-base;
+        @extend .bg-primary-base;
     }
+}
+
+.floating-menu {
+    @extend .absolute, .top-0, .left-284, .mbc-8;
+    z-index: 100;
 }

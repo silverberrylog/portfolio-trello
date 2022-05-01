@@ -14,7 +14,7 @@ import {
 import { sortBy } from '../utils/sorting'
 import { lazy, useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
-import { Project, Color, List } from '../types'
+import { Project, Color, List, Tasks, TaskData } from '../types'
 import ConfirmButton from '../components/ConfirmButton'
 import ConfirmLink from '../components/ConfirmLink'
 import { db } from '../utils/firebase'
@@ -22,6 +22,7 @@ import { PencilIcon, PlusIcon, DotsVerticalIcon } from '@heroicons/react/solid'
 import { useNavigate } from 'react-router-dom'
 import Loading from '../components/Loading'
 import SingleInputModal from '../components/SingleInputModal'
+import { fixFocus } from '../utils/misc'
 
 const NotFound = lazy(() => import('./NotFound'))
 
@@ -42,6 +43,15 @@ export default function ProjectPage() {
     const [focusedListId, setFocusedListId] = useState('')
 
     const [focusedListName, setFocusedListName] = useState('')
+
+    const [tasks, setTasks] = useState<Tasks>({})
+    const [selectedTaskId, setSelectedTaskId] = useState('')
+    const [selectedTaskName, setSelectedTaskName] = useState('')
+
+    const [floatingMenuCoords, setFloatingMenuCoords] = useState({
+        x: -1,
+        y: -1,
+    })
 
     const navigate = useNavigate()
     let params = useParams()
@@ -208,6 +218,15 @@ export default function ProjectPage() {
         }
     }, [focusedListId])
 
+    useEffect(() => {
+        if (selectedTaskId.length > 0) {
+            document.getElementById(`task-${selectedTaskId}`).focus()
+            setSelectedTaskName(
+                document.getElementById(`task-${selectedTaskId}`).value
+            )
+        }
+    }, [selectedTaskId])
+
     const updateList = async () => {
         const updates = { name: focusedListName.trim() }
         await setDoc(doc(db, 'lists', focusedListId), updates, { merge: true })
@@ -228,6 +247,100 @@ export default function ProjectPage() {
         setLists(lists => lists.filter(list => list.id != listId))
     }
 
+    const addTempTask = (listId: string) => {
+        setTasks(tasks => {
+            let updatedTasks = { ...tasks }
+
+            if (!updatedTasks[listId]) updatedTasks[listId] = []
+            updatedTasks[listId].push({
+                id: 'temp_task',
+                name: '',
+                createdAt: new Date(),
+                list: listId,
+                project: project.id,
+            })
+
+            return updatedTasks
+        })
+
+        setSelectedTaskId('temp_task')
+    }
+
+    const addTask = async (listId: string) => {
+        if (selectedTaskName.length == 0) {
+            // remove task from local list
+            setTasks(tasks => {
+                let updatedTasks = { ...tasks }
+
+                const indexOfTempTask = updatedTasks[listId].findIndex(
+                    task => task.id == 'temp_task'
+                )
+                updatedTasks[listId].splice(indexOfTempTask, 1)
+
+                return updatedTasks
+            })
+        } else {
+            const tempTask = tasks[listId].filter(
+                task => task.id == 'temp_task'
+            )[0]
+            const taskData: TaskData = {
+                name: selectedTaskName,
+                createdAt: new Date(),
+                list: tempTask.list,
+                project: tempTask.project,
+            }
+
+            const newTask = await addDoc(collection(db, 'tasks'), taskData)
+
+            setTasks(tasks => {
+                let updatedTasks = { ...tasks }
+
+                if (!updatedTasks[listId]) updatedTasks[listId] = []
+                for (const i in updatedTasks[listId]) {
+                    if (updatedTasks[listId][i].id == 'temp_task') {
+                        updatedTasks[listId][i] = {
+                            ...taskData,
+                            id: newTask.id,
+                        }
+                    }
+                }
+
+                return updatedTasks
+            })
+        }
+
+        setSelectedTaskId('')
+        setSelectedTaskName('')
+    }
+
+    const resizeTextArea = (event: FormEventHandler<HTMLTextAreaElement>) => {
+        event.target.style.height = event.target.scrollHeight + 'px'
+        // event.target.style.height = 'auto'
+    }
+
+    //         function auto_height(elem) {  /* javascript */
+    //     elem.style.height = "1px";
+    // }
+    // .auto_height { /* CSS */
+    //   width: 100%;
+    // <textarea rows="1" class="auto_height" oninput="auto_height(this)"></textarea>
+    //    }
+
+    const openFloatingMenu = (taskId: string) => {
+        const taskBoundingRect = document
+            .getElementById(`task-${taskId}`)
+            .getBoundingClientRect()
+
+        setSelectedTaskId(taskId)
+
+        setFloatingMenuCoords({
+            x: taskBoundingRect.x + taskBoundingRect.width + 16,
+            y: taskBoundingRect.y,
+        })
+
+        // setTimeout(() => setFloatingMenuCoords({ x: -1, y: -1 }), 2000)
+    }
+
     const DisplayProject = () => {
         return (
             <>
@@ -241,6 +354,35 @@ export default function ProjectPage() {
                     onClose={() => setShowAddListModal(false)}
                     onSubmit={addNewList}
                 />
+                <div
+                    className={`fixed top-0 left-0 right-0 bottom-0 bg-primary-shadow ${
+                        floatingMenuCoords.x == -1 && 'hidden'
+                    }`}
+                    onClick={() => setFloatingMenuCoords({ x: -1, y: -1 })}>
+                    <div
+                        className={`absolute rounded border-none mbc-8`}
+                        style={{
+                            left: floatingMenuCoords.x + 'px',
+                            top: floatingMenuCoords.y + 'px',
+                        }}>
+                        <button
+                            // onClick={() => setSelectedTaskId(task.id)}
+                            onClick={() => console.log('edit')}
+                            className="block button-primary">
+                            Edit task
+                        </button>
+                        <button
+                            onClick={() => console.log('delete')}
+                            className="block button-primary">
+                            Delete task
+                        </button>
+                        <button
+                            onClick={() => console.log('cancel')}
+                            className="block button-primary">
+                            Cancel
+                        </button>
+                    </div>
+                </div>
                 <div className="w-1-1 h-1-1 flex flex-column justify-between gap-32 border-box">
                     <div className="relative">
                         <div className="flex justify-between items-center">
@@ -306,7 +448,7 @@ export default function ProjectPage() {
                                             autoFocus
                                         />
                                         <PencilIcon
-                                            className="button-icon"
+                                            className="button-icon w-42 h-42"
                                             onClick={() => {
                                                 setFocusedListName(list.name)
                                                 setFocusedListId(list.id)
@@ -314,11 +456,68 @@ export default function ProjectPage() {
                                         />
                                     </form>
                                     <div className="mbc-8 px-16">
-                                        <div className="task">Lorem</div>
-                                        <div className="task">Lorem</div>
-                                        <div className="task">Lorem</div>
+                                        {(tasks[list.id] || []).map(task => (
+                                            <div
+                                                key={task.id}
+                                                className="relative">
+                                                <textarea
+                                                    value={
+                                                        selectedTaskId ==
+                                                        task.id
+                                                            ? selectedTaskName
+                                                            : task.name
+                                                    }
+                                                    className="task-base resize-none ghost-input py-20"
+                                                    placeholder="Task title"
+                                                    onInput={resizeTextArea}
+                                                    onChange={event =>
+                                                        setSelectedTaskName(
+                                                            event.target.value
+                                                        )
+                                                    }
+                                                    id={`task-${task.id}`}
+                                                    disabled={
+                                                        selectedTaskId !=
+                                                        task.id
+                                                    }
+                                                    onBlur={() =>
+                                                        addTask(list.id)
+                                                    }
+                                                    onFocus={e => {
+                                                        fixFocus(e)
+                                                    }}
+                                                    autoFocus></textarea>
+                                                <DotsVerticalIcon
+                                                    // onClick={() =>
+                                                    //     setSelectedTaskId(
+                                                    //         task.id
+                                                    //     )
+                                                    // }
+                                                    onClick={() =>
+                                                        openFloatingMenu(
+                                                            task.id
+                                                        )
+                                                    }
+                                                    className="absolute top-12 right-12 w-32 h-32 button-icon"
+                                                />
+                                                <div className="floating-menu hidden">
+                                                    <button className="button-primary">
+                                                        Save
+                                                    </button>
+                                                    <button className="button-primary">
+                                                        Delete
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        ))}
+                                        {/* <div className="task p-20">Lorem</div> */}
                                     </div>
-                                    <div className="p-16 text-right">
+                                    <div className="p-16 flex justify-between">
+                                        <a
+                                            onClick={() => addTempTask(list.id)}
+                                            className="link">
+                                            Add task
+                                        </a>
                                         <ConfirmLink
                                             onClick={() => deleteList(list.id)}>
                                             Delete list
@@ -329,7 +528,7 @@ export default function ProjectPage() {
                             <div className="list">
                                 <div
                                     onClick={() => setShowAddListModal(true)}
-                                    className="task-base cursor-pointer flex gap-8">
+                                    className="task-base p-20 cursor-pointer flex gap-8">
                                     <PlusIcon className="w-16 h-16" />
                                     <p className="paragraph">Add list</p>
                                 </div>
