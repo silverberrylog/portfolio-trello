@@ -1,4 +1,4 @@
-import { addTempTask, deleteList } from '@/store/project'
+import { addTempTask, deleteList, update } from '@/store/project'
 import { useDispatch } from 'react-redux'
 import { List, Task } from '@/types'
 import ConfirmLink from '@/components/ConfirmLink'
@@ -23,14 +23,20 @@ export default function TaskList(props: TaskListProps) {
             </div>
             <div className="p-16 flex justify-between">
                 <a
-                    onClick={() =>
+                    onClick={() => {
                         dispatch(
                             addTempTask({
                                 listId: props.list.id,
                                 projectId: props.list.project,
                             })
                         )
-                    }
+                        dispatch(
+                            update({
+                                selectedTaskId: 'temp_task',
+                                selectedTaskListId: props.list.id,
+                            })
+                        )
+                    }}
                     className="link">
                     Add task
                 </a>

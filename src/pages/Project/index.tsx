@@ -24,7 +24,7 @@ import FloatingMenu from './FloatingMenu'
 import TaskList from './TaskList'
 import { RootState } from '@/store'
 import { useDispatch, useSelector } from 'react-redux'
-import { addNewList, update } from '@/store/project'
+import { addNewList, deleteTask, update, updateTask } from '@/store/project'
 
 const NotFound = lazy(() => import('@/pages/NotFound'))
 
@@ -49,6 +49,12 @@ export default function ProjectPage() {
     const selectedTaskId = useSelector(
         (state: RootState) => state.project.selectedTaskId
     )
+    const selectedTaskListId = useSelector(
+        (state: RootState) => state.project.selectedTaskListId
+    )
+    const selectedTaskName = useSelector(
+        (state: RootState) => state.project.selectedTaskName
+    )
 
     const lists = useSelector((state: RootState) => state.project.lists)
     const tasks = useSelector((state: RootState) => state.project.tasks)
@@ -61,6 +67,9 @@ export default function ProjectPage() {
     )
     const floatingMenuY = useSelector(
         (state: RootState) => state.project.floatingMenuY
+    )
+    const floatingMenuOpenedByTaskId = useSelector(
+        (state: RootState) => state.project.floatingMenuOpenedByTaskId
     )
 
     const dispatch = useDispatch()
@@ -117,7 +126,29 @@ export default function ProjectPage() {
                 })
             })
 
-            dispatch(update({ lists }))
+            const tasksSnapshot = await getDocs(
+                query(
+                    collection(db, 'tasks'),
+                    where('project', '==', params.projectId)
+                )
+            )
+
+            let tasks: Tasks = {}
+            tasksSnapshot.forEach(task => {
+                const listData = task.data()
+
+                if (!tasks[listData.list]) tasks[listData.list] = []
+
+                tasks[listData.list].push({
+                    id: task.id,
+                    name: listData.name,
+                    list: listData.list,
+                    project: listData.project,
+                    createdAt: listData.createdAt,
+                })
+            })
+
+            dispatch(update({ lists, tasks }))
         }
         getInitialData()
 
@@ -204,12 +235,12 @@ export default function ProjectPage() {
 
     useEffect(() => {
         if (selectedTaskId.length > 0) {
-            document.getElementById(`task-${selectedTaskId}`).focus()
+            const taskEl = document.getElementById(`task-${selectedTaskId}`)
+
+            taskEl.focus()
             dispatch(
                 update({
-                    selectedTaskName: document.getElementById(
-                        `task-${selectedTaskId}`
-                    ).value,
+                    selectedTaskName: taskEl.value,
                 })
             )
         }
@@ -232,24 +263,7 @@ export default function ProjectPage() {
                         dispatch(addNewList(project.id, newListName))
                     }
                 />
-                <FloatingMenu
-                    isHidden={!showFloatingMenu}
-                    coords={{
-                        x: floatingMenuX,
-                        y: floatingMenuY,
-                    }}
-                    onClose={() =>
-                        dispatch(
-                            update({
-                                showFloatingMenu: false,
-                                floatingMenuX: 0,
-                                floatingMenuY: 0,
-                            })
-                        )
-                    }
-                    onEdit={() => {}}
-                    onDelete={() => {}}
-                />
+                <FloatingMenu />
                 <div className="w-1-1 h-1-1 flex flex-column justify-between gap-32 border-box">
                     <div className="relative">
                         <div className="flex justify-between items-center">

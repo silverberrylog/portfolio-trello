@@ -1,5 +1,5 @@
 import { RootState } from '@/store'
-import { addTask, update } from '@/store/project'
+import { addTask, update, updateTask } from '@/store/project'
 import { Task } from '@/types'
 import { fixFocus } from '@/utils/misc'
 import { DotsVerticalIcon } from '@heroicons/react/solid'
@@ -44,15 +44,17 @@ export default function TaskComponent(props: TaskComponentProps) {
                 }
                 id={`task-${props.task.id}`}
                 disabled={props.task.id != selectedTaskId}
-                onBlur={() =>
-                    dispatch(
-                        addTask({
-                            name: selectedTaskName,
-                            list: props.list.id,
-                            project: props.list.project,
-                            createdAt: Date.now(),
-                        })
-                    )
+                onBlur={
+                    () => 
+                        dispatch(
+                            updateTask(
+                                props.task.project,
+                                props.task.list,
+                                selectedTaskId,
+                                selectedTaskName
+                            )
+                        )
+                    
                 }
                 onFocus={fixFocus}
                 autoFocus></textarea>
@@ -61,22 +63,21 @@ export default function TaskComponent(props: TaskComponentProps) {
                     const boundingRect =
                         event.currentTarget.getBoundingClientRect()
 
-                    // 12= top-12, right-12
+                    // 12 = top-12, right-12
                     dispatch(
                         update({
                             showFloatingMenu: true,
                             floatingMenuX:
                                 boundingRect.x + boundingRect.width + 2 * 12,
                             floatingMenuY: boundingRect.y - 12,
+                            selectedTaskId: props.task.id,
+                            selectedTaskName: props.task.name,
+                            selectedTaskListId: props.task.list,
                         })
                     )
                 }}
                 className="absolute top-12 right-12 w-32 h-32 button-icon"
             />
-            <div className="floating-menu hidden">
-                <button className="button-primary">Save</button>
-                <button className="button-primary">Delete</button>
-            </div>
         </div>
     )
 }

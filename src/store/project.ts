@@ -7,6 +7,7 @@ import { AppDispatch, RootState } from './'
 export interface ProjectState {
     selectedTaskId: string
     selectedTaskName: string
+    selectedTaskListId: string
     tasks: Tasks
     showFloatingMenu: boolean
     lists: List[]
@@ -20,6 +21,7 @@ export interface ProjectState {
 const initialState: ProjectState = {
     selectedTaskId: '',
     selectedTaskName: '',
+    selectedTaskListId: '',
     tasks: {},
     showFloatingMenu: false,
     lists: [],
@@ -71,6 +73,38 @@ export const projectSlice = createSlice({
         setShowFloatingMenu(state, action: PayloadAction<boolean>) {
             state.showFloatingMenu = action.payload
         },
+        _updateTask(
+            state,
+            action: PayloadAction<{
+                listId: string
+                taskId: string
+                updates: Partial<Task>
+            }>
+        ) {
+            let arr = state.tasks[action.payload.listId]
+            for (const index in arr) {
+                if (arr[index].id == action.payload.taskId) {
+                    arr[index] = {
+                        ...arr[index],
+                        ...action.payload.updates,
+                    }
+                }
+            }
+        },
+        _deleteTask(
+            state,
+            action: PayloadAction<{
+                listId: string
+                taskId: string
+            }>
+        ) {
+            let arr = state.tasks[action.payload.listId]
+
+            const index = arr.findIndex(
+                task => task.id == action.payload.taskId
+            )
+            arr.splice(index, 1)
+        },
     },
 })
 
@@ -80,6 +114,8 @@ export const {
     setSelectedTaskName,
     addTempTask,
     setShowFloatingMenu,
+    _updateTask,
+    _deleteTask,
 } = projectSlice.actions
 export default projectSlice.reducer
 
@@ -152,6 +188,65 @@ export const addNewList =
                     { ...listData, id: listRef.id },
                 ],
                 newListName: '',
+            })
+        )
+    }
+
+export const updateTask =
+    (projectId: string, listId: string, taskId: string, newName: string) =>
+    async (dispatch: AppDispatch, getState: () => RootState) => {
+        let updates = { name: newName }
+
+        let newId = taskId
+        if (taskId == 'temp_task') {
+            updates = {
+                ...updates,
+                name: newName,
+                project: projectId,
+                list: listId,
+                createdAt: Date.now(),
+            }
+            const newTask = await addDoc(collection(db, 'tasks'), updates)
+
+            newId = newTask.id
+        } else {
+            await setDoc(doc(collection(db, 'tasks'), taskId), updates, {
+                merge: true,
+            })
+        }
+
+        dispatch(
+            _updateTask({ listId, taskId, updates: { ...updates, id: newId } })
+        )
+
+        dispatch(
+            update({
+                showFloatingMenu: false,
+                floatingMenuX: 0,
+                floatingMenuY: 0,
+
+                selectedTaskId: '',
+                selectedTaskName: '',
+                selectedTaskListId: '',
+            })
+        )
+    }
+
+export const deleteTask =
+    (listId: string, taskId: string) =>
+    async (dispatch: AppDispatch, getState: () => RootState) => {
+        await deleteDoc(doc(db, 'tasks', taskId))
+
+        dispatch(_deleteTask({ listId, taskId }))
+        dispatch(
+            update({
+                showFloatingMenu: false,
+                floatingMenuX: 0,
+                floatingMenuY: 0,
+
+                selectedTaskId: '',
+                selectedTaskName: '',
+                selectedTaskListId: '',
             })
         )
     }
