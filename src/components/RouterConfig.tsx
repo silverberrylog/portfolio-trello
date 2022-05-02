@@ -1,9 +1,9 @@
 import { lazy } from 'react'
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 
-const Homepage = lazy(() => import('../pages/Homepage'))
-const Project = lazy(() => import('../pages/Project'))
-const NotFound = lazy(() => import('../pages/NotFound'))
+const Homepage = lazy(() => import('@/pages/Homepage'))
+const Project = lazy(() => import('@/pages/Project'))
+const NotFound = lazy(() => import('@/pages/NotFound'))
 
 const WorkInProgress = () => {
     return (

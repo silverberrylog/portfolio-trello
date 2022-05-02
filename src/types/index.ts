@@ -25,7 +25,7 @@ export interface Workspace extends WorkspaceData, HasId {}
 export interface ListData {
     project: string
     name: string
-    createdAt: Date
+    createdAt: number
 }
 
 export interface List extends ListData, HasId {}
@@ -34,7 +34,7 @@ export interface TaskData {
     project: string
     list: string
     name: string
-    createdAt: Date
+    createdAt: number
 }
 
 export interface Task extends TaskData, HasId {}
