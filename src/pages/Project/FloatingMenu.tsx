@@ -58,7 +58,7 @@ export default function FloatingMenu() {
 
     return (
         <div
-            className={`fixed top-0 left-0 right-0 bottom-0 bg-primary-shadow${
+            className={`fixed top-0 left-0 right-0 bottom-0 bg-primary-shadow z-100${
                 !showFloatingMenu ? ' hidden' : ''
             }`}>
             <div

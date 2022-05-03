@@ -32,7 +32,9 @@ export default function TaskComponent(props: TaskComponentProps) {
                         ? selectedTaskName
                         : props.task.name
                 }
-                className="task-base resize-none ghost-input py-20"
+                className={`task-base resize-none ghost-input py-20${
+                    props.task.id == selectedTaskId ? ' z-101' : ''
+                }`}
                 placeholder="Task title"
                 onInput={resizeTextArea}
                 onChange={event =>
@@ -44,17 +46,15 @@ export default function TaskComponent(props: TaskComponentProps) {
                 }
                 id={`task-${props.task.id}`}
                 disabled={props.task.id != selectedTaskId}
-                onBlur={
-                    () => 
-                        dispatch(
-                            updateTask(
-                                props.task.project,
-                                props.task.list,
-                                selectedTaskId,
-                                selectedTaskName
-                            )
+                onBlur={() =>
+                    dispatch(
+                        updateTask(
+                            props.task.project,
+                            props.task.list,
+                            selectedTaskId,
+                            selectedTaskName
                         )
-                    
+                    )
                 }
                 onFocus={fixFocus}
                 autoFocus></textarea>

@@ -442,6 +442,14 @@
     left: 284px;
 }
 
+.z-100 {
+    z-index: 100;
+}
+
+.z-101 {
+    z-index: 101;
+}
+
 // Borders
 .rounded-small {
     border-radius: vars.$rounded-small;
@@ -651,11 +659,7 @@
 }
 
 .button-icon {
-    @extend .p-8,
-        .cursor-pointer,
-        .border-none,
-        .rounded-small,
-        .border-box;
+    @extend .p-8, .cursor-pointer, .border-none, .rounded-small, .border-box;
 
     &:hover {
         @extend .bg-accent-dark;
