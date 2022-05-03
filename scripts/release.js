@@ -78,6 +78,7 @@ logProgressMessage('Adding git tags...')
 execSync(`git tag ${newVersion}`)
 
 logProgressMessage('Pushing to git...')
-execSync(`git push --follow-tags`)
+execSync(`git push`)
+execSync(`git push --tags`)
 
 logProgressMessage('All changes have been committed.')
