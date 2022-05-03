@@ -1,8 +1,8 @@
-// import { resolve } from 'path'
 const { execSync } = require('child_process')
 const { readFileSync, writeFileSync } = require('fs')
 const { resolve } = require('path')
 const { inc: incrementVersion } = require('semver')
+const chalk = require('chalk')
 
 // 1. Update version in package.json
 // 2. git add .
@@ -60,25 +60,24 @@ if (!matchCommitMessage.exec(commitMessage)) {
     process.exit()
 }
 
-console.log('Updating version in package.json')
+const logProgressMessage = message => console.log('\n', chalk.blue(message))
+
+logProgressMessage('Updating version in package.json...')
 const packageJsonPath = resolve('package.json')
 const packageJson = JSON.parse(readFileSync(packageJsonPath, 'utf8'))
 
 const newVersion = incrementVersion(packageJson.version, bumpType)
-// console.log(newVersion)
-
-const newPackageJsonContent = {
-    ...packageJson,
-    version: newVersion,
-}
+const newPackageJsonContent = { ...packageJson, version: newVersion }
 writeFileSync(packageJsonPath, JSON.stringify(newPackageJsonContent, null, 4))
 
-console.log('Committing to git...')
+logProgressMessage('Committing to git...')
 execSync('git add .')
 execSync(`git commit -m "${commitMessage}"`)
 
-console.log('Adding git tags...')
+logProgressMessage('Adding git tags...')
 execSync(`git tag ${newVersion}`)
 
-console.log('Pushing to git...')
+logProgressMessage('Pushing to git...')
 execSync(`git push --follow-tags`)
+
+logProgressMessage('All changes have been committed.')
