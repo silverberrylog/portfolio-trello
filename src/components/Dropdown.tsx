@@ -20,10 +20,6 @@ export default function Dropdown<T>(props: DropdownProps<T>) {
     const dropdownRef = useRef(null)
     useClickOutside(dropdownRef, () => setIsOpen(false))
 
-    useEffect(() => {
-        console.log(props)
-    }, [props])
-
     return (
         <div
             ref={dropdownRef}
