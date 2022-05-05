@@ -1,25 +1,35 @@
-// // import { List } from '@/types'
+interface InputObject {
+    name: string
+    createdAt: number
+    [key: string]: any
+}
 
-// interface ObjWithCreatedAt {
-//     createdAt: number
-//     [key: string]: any
-// }
-// export const sortByCreatedAt = (
-//     arr: ObjWithCreatedAt[],
-//     order: 'asc' | 'desc'
-// ) => {
-//     // if (order == 'asc') return arr.sort((a, b) => a[key] - b[key])
-//     // return arr.sort((a, b) => b[key] - a[key])
-//     console.log(arr)
-//     return order == 'asc'
-//         ? arr.sort((a, b) => a.createdAt - b.createdAt)
-//         : arr.sort((a, b) => b.createdAt - a.createdAt)
-// }
-
-export const sortBy = (
-    arr: List[],
-    key: string,
+export const sortArr = (
+    inputArr: InputObject[],
+    field: 'name' | 'createdAt',
     order: 'asc' | 'desc'
-): List[] => {
-    return arr
+) => {
+    const inputCopy = [...inputArr]
+
+    if (field == 'name') {
+        const orderByStrFieldAsc = (a: InputObject, b: InputObject) => {
+            return a[field].localeCompare(b[field], 'en', {
+                sensitivity: 'base',
+            })
+        }
+
+        const orderByStrFieldDesc = (a: InputObject, b: InputObject) => {
+            return b[field].localeCompare(a[field], 'en', {
+                sensitivity: 'base',
+            })
+        }
+
+        return order == 'asc'
+            ? inputCopy.sort(orderByStrFieldAsc)
+            : inputCopy.sort(orderByStrFieldDesc)
+    }
+
+    return order == 'asc'
+        ? inputCopy.sort((a, b) => a[field] - b[field])
+        : inputCopy.sort((a, b) => b[field] - a[field])
 }

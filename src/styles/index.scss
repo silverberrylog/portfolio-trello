@@ -459,8 +459,28 @@
     border-radius: vars.$rounded;
 }
 
+.rounded-top {
+    border-radius: vars.$rounded vars.$rounded 0 0;
+}
+
+.rounded-bottom {
+    border-radius: 0 0 vars.$rounded vars.$rounded;
+}
+
+.rounded-left {
+    border-radius: vars.$rounded 0 0 vars.$rounded;
+}
+
+.rounded-right {
+    border-radius: 0 vars.$rounded vars.$rounded 0;
+}
+
 .border-none {
     border: none;
+}
+
+.border-right-2 {
+    border-right: 2px solid vars.$accent-shadow;
 }
 
 // Mouse
@@ -639,6 +659,10 @@
     overflow-x: auto;
 }
 
+.overflow-hidden {
+    overflow: hidden;
+}
+
 .ratio-1-1 {
     aspect-ratio: 1/1;
 }
@@ -666,9 +690,21 @@
     }
 }
 
-.input-base {
-    @extend .rounded,
+.button-addon-base {
+    @extend .py-12,
+        .px-32,
         .border-none,
+        .cursor-pointer,
+        .bg-accent-dark,
+        .paragraph;
+
+    &:hover {
+        @extend .bg-accent-shadow;
+    }
+}
+
+.input-base {
+    @extend .border-none,
         .block,
         .py-12,
         .px-20,
@@ -679,7 +715,14 @@
 }
 
 .input {
-    @extend .input-base, .bg-primary-base;
+    @extend .input-base, .rounded, .bg-primary-base;
+}
+
+.dropdown-option {
+    @extend .input-base, .bg-primary-base, .cursor-pointer;
+    &:hover {
+        @extend .bg-primary-dark;
+    }
 }
 
 .link {

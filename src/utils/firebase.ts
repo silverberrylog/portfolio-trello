@@ -15,4 +15,3 @@ const firebaseConfig: FirebaseOptions = {
 
 const firebaseApp = initializeApp(firebaseConfig)
 export const db = getFirestore(firebaseApp)
-// export const dbRef = getFirestore(firebaseApp)

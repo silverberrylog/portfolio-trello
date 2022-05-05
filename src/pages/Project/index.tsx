@@ -10,13 +10,13 @@ import {
     where,
     writeBatch,
 } from 'firebase/firestore'
-import { sortBy } from '@/utils/sorting'
-import { lazy, useEffect, useState } from 'react'
+import { sortArr } from '@/utils/sorting'
+import { lazy, useEffect, useState, useMemo } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { Project, Color, List } from '@/types'
 import ConfirmButton from '@/components/ConfirmButton'
 import { db } from '@/utils/firebase'
-import { PlusIcon } from '@heroicons/react/solid'
+import { PlusIcon, XIcon } from '@heroicons/react/solid'
 import { useNavigate } from 'react-router-dom'
 import Loading from '@/components/Loading'
 import SingleInputModal from '@/components/SingleInputModal'
@@ -25,6 +25,10 @@ import TaskList from './TaskList'
 import { RootState } from '@/store'
 import { useDispatch, useSelector } from 'react-redux'
 import { addNewList, deleteTask, update, updateTask } from '@/store/project'
+import FloatingSideMenu from './FloatingSideMenu'
+import Dropdown from '@/components/Dropdown'
+import { filterTasks } from '@/utils/filtering'
+import ButtonWithAddon from '@/components/ButtonWithAddon'
 
 const NotFound = lazy(() => import('@/pages/NotFound'))
 
@@ -34,6 +38,8 @@ export default function ProjectPage() {
     const [isUndefined, setIsUndefined] = useState(false)
 
     const [showUpdateMenu, setShowUpdateMenu] = useState(false)
+    const [showFilterAndSortMenu, setShowFilterAndSortMenu] = useState(false)
+
     const [newProjectName, setNewProjectName] = useState('')
     const [newProjectColor, setNewProjectColor] = useState('')
 
@@ -49,28 +55,31 @@ export default function ProjectPage() {
     const selectedTaskId = useSelector(
         (state: RootState) => state.project.selectedTaskId
     )
-    const selectedTaskListId = useSelector(
-        (state: RootState) => state.project.selectedTaskListId
-    )
-    const selectedTaskName = useSelector(
-        (state: RootState) => state.project.selectedTaskName
-    )
 
     const lists = useSelector((state: RootState) => state.project.lists)
     const tasks = useSelector((state: RootState) => state.project.tasks)
 
-    const showFloatingMenu = useSelector(
-        (state: RootState) => state.project.showFloatingMenu
-    )
-    const floatingMenuX = useSelector(
-        (state: RootState) => state.project.floatingMenuX
-    )
-    const floatingMenuY = useSelector(
-        (state: RootState) => state.project.floatingMenuY
-    )
-    const floatingMenuOpenedByTaskId = useSelector(
-        (state: RootState) => state.project.floatingMenuOpenedByTaskId
-    )
+    const sortOptions = [
+        {
+            value: 'createdAt-asc',
+            title: 'Creation date - oldest to newest',
+        },
+        {
+            value: 'createdAt-desc',
+            title: 'Creation date - newest to oldest',
+        },
+        {
+            value: 'name-asc',
+            title: 'Name - A to Z',
+        },
+        {
+            value: 'name-desc',
+            title: 'Name - Z to A',
+        },
+    ]
+
+    const [sortTasksBy, setSortTasksBy] = useState(sortOptions[0].value)
+    const [filterTasksBy, setFilterTasksBy] = useState('')
 
     const dispatch = useDispatch()
 
@@ -179,7 +188,12 @@ export default function ProjectPage() {
         setShowUpdateMenu(false)
     }
 
-    const EditProjectMenu = () => {
+    const sortedLists = useMemo(
+        () => sortArr(lists, 'createdAt', 'asc'),
+        [lists, filterTasksBy, sortTasksBy]
+    )
+
+    const UpdateMenu = () => {
         return (
             <div className="mbc-16">
                 <h2 className="title-2">Edit project</h2>
@@ -203,9 +217,10 @@ export default function ProjectPage() {
                                     newProjectColor == color && 'border-dashed'
                                 }`}
                                 key={color}
-                                onClick={() => {
+                                onClick={event => {
                                     updateBgColor(color)
                                     setNewProjectColor(color)
+                                    event.currentTarget.focus()
                                 }}></div>
                         ))}
                     </div>
@@ -219,6 +234,59 @@ export default function ProjectPage() {
                             updateBgColor(project.color)
                             setShowUpdateMenu(false)
                         }}
+                        className="button-primary">
+                        Cancel
+                    </button>
+                </div>
+            </div>
+        )
+    }
+
+    interface FilterAndSortMenuProps {
+        filterTasksBy: string
+        sortTasksBy: string
+    }
+    const FilterAndSortMenu = (props: FilterAndSortMenuProps) => {
+        const [tempFilterTaskBy, setTempFilterTaskBy] = useState(
+            props.filterTasksBy
+        )
+        const [tempSortTasksBy, setTempSortTasksBy] = useState(
+            props.sortTasksBy
+        )
+
+        return (
+            <div className="mbc-16">
+                <h2 className="title-2">Filter and sort tasks</h2>
+                <div>
+                    <p className="paragraph mb-4">Search tasks</p>
+                    <input
+                        value={tempFilterTaskBy}
+                        onChange={event =>
+                            setTempFilterTaskBy(event.target.value)
+                        }
+                        className="input"
+                    />
+                </div>
+                <div>
+                    <p className="paragraph mb-4">Sort by</p>
+                    <Dropdown
+                        options={sortOptions}
+                        selectedValue={tempSortTasksBy}
+                        onChange={value => setTempSortTasksBy(value)}
+                    />
+                </div>
+                <div className="flex gap-12">
+                    <button
+                        onClick={() => {
+                            setFilterTasksBy(tempFilterTaskBy)
+                            setSortTasksBy(tempSortTasksBy)
+                            setShowFilterAndSortMenu(false)
+                        }}
+                        className="button-primary">
+                        Apply
+                    </button>
+                    <button
+                        onClick={() => setShowFilterAndSortMenu(false)}
                         className="button-primary">
                         Cancel
                     </button>
@@ -274,9 +342,15 @@ export default function ProjectPage() {
                                 </Link>
                             </div>
                             <div className="flex gap-12">
-                                <button className="button-primary">
-                                    Filter tasks
-                                </button>
+                                <ButtonWithAddon
+                                    onClick={() =>
+                                        setShowFilterAndSortMenu(true)
+                                    }
+                                    onAddonClick={() => setFilterTasksBy('')}
+                                    addon={XIcon}
+                                    showAddon={filterTasksBy != ''}>
+                                    Filter/sort tasks
+                                </ButtonWithAddon>
                                 <button
                                     onClick={() => {
                                         setNewProjectName(project.name)
@@ -292,19 +366,29 @@ export default function ProjectPage() {
                                 </ConfirmButton>
                             </div>
                         </div>
-                        {showUpdateMenu && (
-                            <div className="absolute right-0 top-64 overflow-y bg-primary-background w-1-3 border-none rounded p-24 border-box shadow-menu h-menu">
-                                <EditProjectMenu />
-                            </div>
-                        )}
+                        <FloatingSideMenu isVisible={showUpdateMenu}>
+                            <UpdateMenu />
+                        </FloatingSideMenu>
+                        <FloatingSideMenu isVisible={showFilterAndSortMenu}>
+                            <FilterAndSortMenu
+                                filterTasksBy={filterTasksBy}
+                                sortTasksBy={sortTasksBy}
+                            />
+                        </FloatingSideMenu>
                     </div>
                     <div className="h-1-1 w-1-1 border-box overflow-x">
                         <div className="flex h-fit gap-12 w-fit pb-16 pr-16">
-                            {sortBy(lists, 'createdAt', 'asc').map(list => (
+                            {sortedLists.map(list => (
                                 <TaskList
                                     key={list.id}
                                     list={list}
-                                    tasks={tasks[list.id] || []}
+                                    tasks={sortArr(
+                                        filterTasks(
+                                            tasks[list.id] || [],
+                                            filterTasksBy
+                                        ),
+                                        ...sortTasksBy.split('-')
+                                    )}
                                 />
                             ))}
                             <div className="list">
