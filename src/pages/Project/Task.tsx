@@ -24,6 +24,40 @@ export default function TaskComponent(props: TaskComponentProps) {
     )
     const dispatch = useDispatch()
 
+    const updateTaskLocally = (
+        event: React.ChangeEvent<HTMLTextAreaElement>
+    ) => {
+        dispatch(update({ selectedTaskName: event.target.value }))
+    }
+
+    const commitTaskChanges = () => {
+        dispatch(
+            updateTask(
+                props.task.project,
+                props.task.list,
+                selectedTaskId,
+                selectedTaskName
+            )
+        )
+    }
+    const openFloatingMenu = (
+        event: React.MouseEvent<SVGSVGElement, MouseEvent>
+    ) => {
+        const boundingRect = event.currentTarget.getBoundingClientRect()
+
+        // 12 = top-12, right-12
+        dispatch(
+            update({
+                showFloatingMenu: true,
+                floatingMenuX: boundingRect.x + boundingRect.width + 2 * 12,
+                floatingMenuY: boundingRect.y - 12,
+                selectedTaskId: props.task.id,
+                selectedTaskName: props.task.name,
+                selectedTaskListId: props.task.list,
+            })
+        )
+    }
+
     return (
         <div key={props.task.id} className="relative">
             <textarea
@@ -37,45 +71,14 @@ export default function TaskComponent(props: TaskComponentProps) {
                 }`}
                 placeholder="Task title"
                 onInput={resizeTextArea}
-                onChange={event =>
-                    dispatch(
-                        update({
-                            selectedTaskName: event.target.value,
-                        })
-                    )
-                }
+                onChange={updateTaskLocally}
                 id={`task-${props.task.id}`}
                 disabled={props.task.id != selectedTaskId}
-                onBlur={() =>
-                    dispatch(
-                        updateTask(
-                            props.task.project,
-                            props.task.list,
-                            selectedTaskId,
-                            selectedTaskName
-                        )
-                    )
-                }
+                onBlur={commitTaskChanges}
                 onFocus={fixFocus}
                 autoFocus></textarea>
             <DotsVerticalIcon
-                onClick={event => {
-                    const boundingRect =
-                        event.currentTarget.getBoundingClientRect()
-
-                    // 12 = top-12, right-12
-                    dispatch(
-                        update({
-                            showFloatingMenu: true,
-                            floatingMenuX:
-                                boundingRect.x + boundingRect.width + 2 * 12,
-                            floatingMenuY: boundingRect.y - 12,
-                            selectedTaskId: props.task.id,
-                            selectedTaskName: props.task.name,
-                            selectedTaskListId: props.task.list,
-                        })
-                    )
-                }}
+                onClick={openFloatingMenu}
                 className="absolute top-12 right-12 w-32 h-32 button-icon"
             />
         </div>

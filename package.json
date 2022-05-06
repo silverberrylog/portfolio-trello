@@ -1,7 +1,7 @@
 {
     "name": "portfolio-trello",
     "private": true,
-    "version": "1.5.2",
+    "version": "1.5.3",
     "scripts": {
         "dev": "vite",
         "build": "tsc && vite build",

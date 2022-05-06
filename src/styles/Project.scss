@@ -18,6 +18,10 @@
     }
 }
 
+.ghost-task {
+    @extend .bg-primary-dark, .border-none, .rounded;
+}
+
 .task {
     @extend .task-base, .cursor-grab;
 }

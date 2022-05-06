@@ -17,13 +17,30 @@ export default function TaskListHeader(props: TaskListHeaderProps) {
     )
     const dispatch = useDispatch()
 
+    const updateListLocally = (event: React.ChangeEvent<HTMLInputElement>) => {
+        dispatch(update({ focusedListName: event.target.value }))
+    }
+
+    const commitListChanges = () => {
+        dispatch(updateList(focusedListId, focusedListName))
+    }
+
+    const focusListName = () => {
+        dispatch(
+            update({
+                focusedListName: props.list.name,
+                focusedListId: props.list.id,
+            })
+        )
+    }
+
     return (
         <>
             <form
                 className="h-min gap-8 flex justify-between items-center p-16"
-                onSubmit={e => {
-                    e.preventDefault()
-                    dispatch(updateList(focusedListId, focusedListName))
+                onSubmit={event => {
+                    event.preventDefault()
+                    commitListChanges()
                 }}>
                 <input
                     value={
@@ -32,30 +49,15 @@ export default function TaskListHeader(props: TaskListHeaderProps) {
                             : props.list.name
                     }
                     className="ghost-input"
-                    onChange={e =>
-                        dispatch(
-                            update({
-                                focusedListName: e.target.value,
-                            })
-                        )
-                    }
-                    onBlur={() =>
-                        dispatch(updateList(focusedListId, focusedListName))
-                    }
+                    onChange={updateListLocally}
+                    onBlur={commitListChanges}
                     disabled={focusedListId != props.list.id}
                     id={`list-${props.list.id}`}
                     autoFocus
                 />
                 <PencilIcon
                     className="button-icon w-42 h-42"
-                    onClick={() => {
-                        dispatch(
-                            update({
-                                focusedListName: props.list.name,
-                                focusedListId: props.list.id,
-                            })
-                        )
-                    }}
+                    onClick={focusListName}
                 />
             </form>
         </>

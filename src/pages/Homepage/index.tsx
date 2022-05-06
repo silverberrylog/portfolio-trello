@@ -11,19 +11,21 @@ import {
 } from 'firebase/firestore'
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import ConfirmButton from '../components/ConfirmButton'
-import SingleInputModal from '../components/SingleInputModal'
-import '../styles/Homepage.scss'
-import { ProjectData, Projects, Workspace } from '../types'
-import { db } from '../utils/firebase'
+import SingleInputModal from '@/components/SingleInputModal'
+import '@/styles/Homepage.scss'
+import { ProjectData, Projects, Workspace } from '@/types'
+import { db } from '@/utils/firebase'
+import WorkspaceComponent from './Workspace'
 
 export default function Homepage() {
     const [workspaces, setWorkspaces] = useState<Workspace[]>([])
     const [projects, setProjects] = useState<Projects>({})
 
-    const [showUpdateModal, setShowUpdateModal] = useState(false)
-    const [showCrateModal, setShowCrateModal] = useState(false)
-    const [showProjectModal, setShowProjectModal] = useState(false)
+    const [showWorkspaceUpdateModal, setShowWorkspaceUpdateModal] =
+        useState(false)
+    const [showWorkspaceCreateModal, setShowWorkspaceCreateModal] =
+        useState(false)
+    const [showProjectCreateModal, setShowProjectCreateModal] = useState(false)
 
     const [workspaceName, setWorkspaceName] = useState('')
     const [workspaceId, setWorkspaceId] = useState('')
@@ -97,6 +99,7 @@ export default function Homepage() {
             )
         })
 
+        setWorkspaceName('')
         setWorkspaceId('')
     }
 
@@ -117,6 +120,8 @@ export default function Homepage() {
         setWorkspaces(workspaces =>
             workspaces.filter(workspace => workspace.id != workspaceId)
         )
+
+        setWorkspaceId('')
     }
 
     const createProject = async () => {
@@ -131,88 +136,69 @@ export default function Homepage() {
         navigate(`/project/${projectRef.id}`)
     }
 
+    const openProjectCreateModal = (workspaceId: string) => {
+        setCurrentWorkspaceId(workspaceId)
+        setShowProjectCreateModal(true)
+    }
+
+    const openWorkspaceUpdateModal = (
+        workspaceName: string,
+        workspaceId: string
+    ) => {
+        setWorkspaceName(workspaceName)
+        setWorkspaceId(workspaceId)
+        setShowWorkspaceUpdateModal(true)
+    }
+
     return (
         <>
             <SingleInputModal
                 title="Create a workspace"
                 inputPlaceholder="Workspace name"
                 submitButtonText="Create"
-                show={showCrateModal}
+                show={showWorkspaceCreateModal}
                 nameValue={workspaceName}
                 onNameUpdate={setWorkspaceName}
-                onClose={() => setShowCrateModal(false)}
+                onClose={() => setShowWorkspaceCreateModal(false)}
                 onSubmit={createWorkspace}
             />
             <SingleInputModal
                 title="Update workspace"
                 inputPlaceholder="Workspace name"
                 submitButtonText="Update"
-                show={showUpdateModal}
+                show={showWorkspaceUpdateModal}
                 nameValue={workspaceName}
                 onNameUpdate={setWorkspaceName}
-                onClose={() => setShowUpdateModal(false)}
+                onClose={() => setShowWorkspaceUpdateModal(false)}
                 onSubmit={updateWorkspace}
             />
             <SingleInputModal
                 title="Create a project"
                 inputPlaceholder="Project name"
                 submitButtonText="Create"
-                show={showProjectModal}
+                show={showProjectCreateModal}
                 nameValue={projectName}
                 onNameUpdate={setProjectName}
-                onClose={() => setShowProjectModal(false)}
+                onClose={() => setShowProjectCreateModal(false)}
                 onSubmit={createProject}
             />
             <div className="flex justify-between items-center mb-16">
-                <h1 className="title-1">Homepage</h1>
+                <h1 className="title-1">Workspaces</h1>
                 <button
                     className="button-primary"
-                    onClick={() => setShowCrateModal(true)}>
-                    Create workspace
+                    onClick={() => setShowWorkspaceCreateModal(true)}>
+                    New
                 </button>
             </div>
             {workspaces.map(workspace => (
-                <div key={workspace.id}>
-                    <div className="flex justify-between items-center mb-16">
-                        <h2 className="title-2">{workspace.name}</h2>
-                        <div className="flex gap-12">
-                            <button
-                                className="button-primary"
-                                onClick={() => {
-                                    setWorkspaceName(workspace.name)
-                                    setWorkspaceId(workspace.id)
-                                    setShowUpdateModal(true)
-                                }}>
-                                Update
-                            </button>
-                            <ConfirmButton
-                                onClick={() => deleteWorkspace(workspace.id)}>
-                                Delete
-                            </ConfirmButton>
-                        </div>
-                    </div>
-                    <div className="grid cols-4 gap-12 mb-32 border-box w-1-1">
-                        {(projects[workspace.id] || []).map(project => (
-                            <div
-                                onClick={() =>
-                                    navigate(`/project/${project.id}`)
-                                }
-                                key={project.id}
-                                className={`project-card flex justify-between flex-column bg-custom-${project.color}`}>
-                                <p className="paragraph">{project.name}</p>
-                                {/* <p>Delete project</p> */}
-                            </div>
-                        ))}
-                        <div
-                            onClick={() => {
-                                setCurrentWorkspaceId(workspace.id)
-                                setShowProjectModal(true)
-                            }}
-                            className="project-card flex justify-center items-center bg-custom-blue">
-                            <p className="paragraph">Create project</p>
-                        </div>
-                    </div>
-                </div>
+                <WorkspaceComponent
+                    key={workspace.id}
+                    workspace={workspace}
+                    projects={projects[workspace.id] || []}
+                    onUpdateWorkspaceClick={openWorkspaceUpdateModal}
+                    onDeleteWorkspaceClick={deleteWorkspace}
+                    onCreateProjectClick={openProjectCreateModal}
+                />
             ))}
         </>
     )

@@ -19,8 +19,11 @@ export default function FloatingMenu() {
     const selectedTaskListId = useSelector(
         (state: RootState) => state.project.selectedTaskListId
     )
-
     const dispatch = useDispatch()
+
+    const deleteSelectedTask = () => {
+        dispatch(deleteTask(selectedTaskListId, selectedTaskId))
+    }
 
     return (
         <div
@@ -34,9 +37,7 @@ export default function FloatingMenu() {
                     top: floatingMenuY + 'px',
                 }}>
                 <button
-                    onClick={() =>
-                        dispatch(deleteTask(selectedTaskListId, selectedTaskId))
-                    }
+                    onClick={deleteSelectedTask}
                     className="block button-primary">
                     Delete task
                 </button>

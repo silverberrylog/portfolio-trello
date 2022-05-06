@@ -20,6 +20,15 @@ export default function TaskList(props: TaskListProps) {
                 {props.tasks.map(task => (
                     <TaskComponent key={task.id} task={task} />
                 ))}
+                <TaskComponent
+                    task={{
+                        id: 'ghost_task',
+                        project: '',
+                        list: props.list.id,
+                        name: '',
+                        createdAt: Date.now(),
+                    }}
+                />
             </div>
             <div className="p-16 flex justify-between">
                 <a
